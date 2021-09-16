@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 import * as crypto from 'crypto';
 
 @Entity('users')
@@ -6,28 +7,28 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({nullable: true})
     name: string;
 
-    @Column()
+    @Column({nullable: true})
     email: string;
 
     @BeforeInsert()
     @BeforeUpdate()
     hashPassword() {
-        this.password = crypto.createHmac('sha256', this.password).digest('hex');
+        typeof(this.password) !== 'undefined' ? crypto.createHmac('sha256', this.password).digest('hex') : this.password;
     }
 
-    @Column()
+    @Column({nullable: true})
     password: string;
 
     /*--------metamask--------*/
     @Column()
-    nonce: number
+    nonce: string;
 
     @BeforeInsert()
     generateNonce() {
-        this.nonce = Math.floor(Math.random() * 1000000);
+        this.nonce = uuidv4();
     }
 
     @BeforeInsert()
@@ -41,7 +42,8 @@ export class User {
     publicAddress: string;
 
     @Column({
-        unique: true
+        unique: true,
+        nullable: true
     })
     username: string;
 }

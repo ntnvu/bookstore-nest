@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { UsersDTO } from './users.dto';
+import { v4 as uuidv4 } from 'uuid';
 import * as ethUtil from 'ethereumjs-util';
 
 @Injectable()
@@ -21,16 +22,13 @@ export class UsersService {
         return await this.usersRepository.save(user);
     }
 
-    async findByPublicAddress(publicAddress: string): Promise<User> {
-        try {
-            return await this.usersRepository.findOneOrFail({
-                where: {
-                    publicAddress: publicAddress
-                }
-            })
-        } catch (err) {
-            throw new HttpException('public address does not exist!', 404);
-        }
+    async findByPublicAddress(publicAddress: string): Promise<any> {
+        const data = await this.usersRepository.findOne({
+            where: {
+                publicAddress: publicAddress
+            }
+        })
+        return typeof(data) !== 'undefined' ? data : {};
     }
 
     async findByEmail(email: string): Promise<User> {
@@ -72,8 +70,8 @@ export class UsersService {
     async auth(data: any) {
         const user = await this.findByPublicAddress(data.publicAddress);
 
-        const msg = `I am signing my one-time nonce: ${user.nonce}`;               
-        const msgBuffer = Buffer.from(msg, 'utf8'); 
+        const msg = `I am signing my one-time nonce: ${user.nonce}`;
+        const msgBuffer = Buffer.from(msg, 'utf8');
 
         const msgHash = ethUtil.hashPersonalMessage(msgBuffer);
         const signatureParams = ethUtil.fromRpcSig(data.signature);
@@ -87,10 +85,10 @@ export class UsersService {
         const address = ethUtil.bufferToHex(addressBuffer);
 
         //update nonce
-        user.nonce = Math.floor(Math.random() * 1000000);
-        this.usersRepository.save(user);
+        const id:number = user.id;
+        await this.usersRepository.update({ id }, {nonce:uuidv4()});
 
-        if (address.toLowerCase() === user.publicAddress.toLowerCase()) {                        
+        if (address.toLowerCase() === user.publicAddress.toLowerCase()) {
             return { name: user.name, username: user.username };
         } else {
             return false;

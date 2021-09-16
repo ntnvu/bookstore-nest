@@ -4,5 +4,5 @@ export interface UsersDTO {
     email: string;
     password: string;
     publicAddress: string;
-    nonce: number;
+    nonce: string;
 }

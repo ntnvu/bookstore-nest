@@ -29,13 +29,13 @@ export class UsersController {
 
     @Get('findByAddress/:publicAddress')
     async readUserByPublicAddress(@Param('publicAddress') publicAddress: string) {
-        const data = await this.usersService.findByPublicAddress(publicAddress)
+        const user = await this.usersService.findByPublicAddress(publicAddress);        
         return {
-            data
+            user
         }
     }
 
-    @Post("")
+    @Post()
     async createUsers(@Body() data: UsersDTO){
         const user = await this.usersService.create(data);
         return {
