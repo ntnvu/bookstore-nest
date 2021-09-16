@@ -20,4 +20,28 @@ export class User {
 
     @Column()
     password: string;
+
+    /*--------metamask--------*/
+    @Column()
+    nonce: number
+
+    @BeforeInsert()
+    generateNonce() {
+        this.nonce = Math.floor(Math.random() * 1000000);
+    }
+
+    @BeforeInsert()
+    toLowerCase() {
+        this.publicAddress = this.publicAddress.toLocaleLowerCase();
+    }
+
+    @Column({
+        unique: true
+    })
+    publicAddress: string;
+
+    @Column({
+        unique: true
+    })
+    username: string;
 }

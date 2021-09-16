@@ -3,4 +3,6 @@ export interface UsersDTO {
     name: string;
     email: string;
     password: string;
+    publicAddress: string;
+    nonce: number;
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
 import { UsersDTO } from './users.dto';
 import { UsersService } from './users.service';
 
@@ -8,22 +8,13 @@ export class UsersController {
 
     @Get()
     async showAllUsers() {
+        console.log("aaaa");
         const users = await this.usersService.showAll();
         return {
             statusCode: HttpStatus.OK,
             message: 'Users fetched successfully',
             users
         };
-    }
-
-    @Post()
-    async createUsers(@Body() data: UsersDTO){
-        const user = await this.usersService.create(data);
-        return {
-            statusCode: HttpStatus.OK,
-            message: 'User created successfully',
-            user
-        }
     }
 
     @Get(':id')
@@ -33,6 +24,38 @@ export class UsersController {
             statusCode: HttpStatus.OK,
             message: 'User fetched successfully',
             data
+        }
+    }
+
+    @Get('findByAddress/:publicAddress')
+    async readUserByPublicAddress(@Param('publicAddress') publicAddress: string) {
+        const data = await this.usersService.findByPublicAddress(publicAddress)
+        return {
+            data
+        }
+    }
+
+    @Post("")
+    async createUsers(@Body() data: UsersDTO){
+        const user = await this.usersService.create(data);
+        return {
+            statusCode: HttpStatus.OK,
+            message: 'User created successfully',
+            user
+        }
+    }
+
+    @Post('auth')
+    async handleAuthenticate(@Body() data: any) {
+        const user = await this.usersService.auth(data);
+        if(user === false) {
+            return {
+                statusCode: 401,
+                message: 'Signature verification failed',
+            }
+        }
+        return {
+            user
         }
     }
 

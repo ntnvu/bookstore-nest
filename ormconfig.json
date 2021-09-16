@@ -1,6 +1,6 @@
 {
     "type": "mysql",
-    "host": "localhost",
+    "host": "178.128.110.145",
     "port": "3306",
     "username": "wordpressuser",
     "password": "!123456@",
