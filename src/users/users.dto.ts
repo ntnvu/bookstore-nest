@@ -1,8 +1,10 @@
 export interface UsersDTO {
     // id: number;
-    name: string;
-    email: string;
-    password: string;
-    publicAddress: string;
+    // name: string;
+    // email: string;
+    // password: string;
+    // publicAddress: string;
     nonce: string;
+    // uuid: string;
+    token: string;
 }

@@ -4,22 +4,32 @@ import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { UsersDTO } from './users.dto';
 import { v4 as uuidv4 } from 'uuid';
+
 import * as ethUtil from 'ethereumjs-util';
+import { HeroiclabsService } from 'src/heroiclabs/heroiclabs.service';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(User)
         private usersRepository: Repository<User>,
+        private heroiclabsService: HeroiclabsService
     ) { }
 
     async showAll() {
         return await this.usersRepository.find();
     }
 
-    async create(data: UsersDTO): Promise<User> {
-        const user = this.usersRepository.create(data);
-        return await this.usersRepository.save(user);
+    async create(data: UsersDTO): Promise<Object> {
+        let user: User;
+        await this.usersRepository.save(this.usersRepository.create(data))
+            .then(userReturn => user = userReturn)
+            .then(user => this.heroiclabsService.connectHeroic({ create: true, heroic_user_uuid: user.heroic_user_uuid }))
+
+        return {
+            nonce: user.nonce,
+            publicAddress: user.publicAddress
+        };
     }
 
     async findByPublicAddress(publicAddress: string): Promise<any> {
@@ -28,7 +38,7 @@ export class UsersService {
                 publicAddress: publicAddress
             }
         })
-        return typeof(data) !== 'undefined' ? data : {};
+        return typeof (data) !== 'undefined' ? data : {};
     }
 
     async findByEmail(email: string): Promise<User> {
@@ -85,11 +95,13 @@ export class UsersService {
         const address = ethUtil.bufferToHex(addressBuffer);
 
         //update nonce
-        const id:number = user.id;
-        await this.usersRepository.update({ id }, {nonce:uuidv4()});
-
+        const id: number = user.id;
+        await this.usersRepository.update({ id }, { nonce: uuidv4() });
+        
         if (address.toLowerCase() === user.publicAddress.toLowerCase()) {
-            return { name: user.name, username: user.username };
+            await this.heroiclabsService.connectHeroic({ create: false, heroic_user_uuid: user.heroic_user_uuid })
+                .then(token => user.token = token);
+            return { token: user.token };
         } else {
             return false;
         }

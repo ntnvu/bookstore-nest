@@ -33,7 +33,7 @@ export class User {
 
     @BeforeInsert()
     toLowerCase() {
-        this.publicAddress = this.publicAddress.toLocaleLowerCase();
+        this.publicAddress = this.publicAddress.toLowerCase();
     }
 
     @Column({
@@ -46,4 +46,14 @@ export class User {
         nullable: true
     })
     username: string;
+
+    @Column()
+    heroic_user_uuid: string;
+
+    @BeforeInsert()
+    generateHeroicId() {
+        this.heroic_user_uuid = uuidv4();
+    }
+
+    token: string;
 }

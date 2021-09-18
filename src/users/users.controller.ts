@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
+
 import { UsersDTO } from './users.dto';
 import { UsersService } from './users.service';
 
@@ -8,7 +9,6 @@ export class UsersController {
 
     @Get()
     async showAllUsers() {
-        console.log("aaaa");
         const users = await this.usersService.showAll();
         return {
             statusCode: HttpStatus.OK,
@@ -55,7 +55,7 @@ export class UsersController {
             }
         }
         return {
-            user
+            token: user.token
         }
     }
 
